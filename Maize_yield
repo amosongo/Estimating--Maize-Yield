@@ -1,0 +1,40 @@
+data<-read.csv("F:/Dr Nyambati/means.csv",header = T)
+str(data)
+View(data)
+library(dplyr)
+dir <- "F:/Dr Nyambati/"
+#Read in the data, paste together the directory name and the filename.
+g_raw <- read.csv(paste0(dir,"means.csv"), stringsAsFactors = F)
+#Perform data cleaning/ variable creation
+g_dat <- g_raw %>%
+  mutate(
+    Site = factor(OrganicNsource, levels = c("Calliandra", "Stover")),
+)
+
+require(car)
+require(foreign)
+cutting_data<-within(read.dta("C:/Users/myles/Desktop/New folder (3)/New folder/cutting test.csv")), {
+}
+Effect_on_plant_function<-function(number){
+  species=filter(Family,Species.Name==number)
+  effect=length(grep("Pollinators",species$Destruction_made_on_the_plant))
+  destruction=length(grep("Defoliators",species$Destruction_made_on_the_plant))
+  destruction_made=(destruction/(destruction+effect))*100
+  destruction_percentage=round(destruction_made,2)
+  return(destruction_percentage)
+}
+
+library(ggplot2)
+pl<-lm(MeanGrainsTHa~`Inorganic N`*`Organic N`,data = means)
+op<-seq(0,75,15)
+ggplot(means, aes(op,`Total Yield t/ha`)) +
+  geom_smooth(method="lm") +
+  geom_point(size=3) +
+  theme_bw() + 
+  xlab("Striga density") +
+  ylab("Total yield") +
+  ggtitle("Regression") + 
+  expand_limits(y=0) +
+  scale_y_continuous(breaks = 0:10) + 
+  scale_x_continuous(breaks = 1998:2015)
+curve(pl,add = T,type = "l")
